@@ -2,11 +2,14 @@ import serial
 import sqlite3
 import time
 
+
 # Establish a connection to the Arduino using the specified port
-ser = serial.Serial('COM3', 9600)  # Replace 'COM3' with your Arduino port
+# Replace 'COM3' with your Arduino port
+ser = serial.Serial('COM3', 9600)
 
 # Establish a connection to the SQLite database
-conn = sqlite3.connect('sensor_data.db')  # Replace 'sensor_data.db' with your desired database name
+# Replace 'sensor_data.db' with your desired database name
+conn = sqlite3.connect('sensor_data_uni1.db')
 
 # Create a cursor object to execute SQL statements
 cursor = conn.cursor()
@@ -35,13 +38,16 @@ while time.time() - start_time <= 60:
     data_parts = data.split(',')
     if len(data_parts) == 4:
         co2, temperature, humidity, timestamp = data_parts
+        timestamp = str(round((int(timestamp)/1000), 2))
+
         # Insert the data into the database
         cursor.execute('INSERT INTO sensor_data (co2, temperature, humidity, timestamp) VALUES (?, ?, ?, ?)',
                        (co2, temperature, humidity, timestamp))
         conn.commit()
 
         # Print the data and time for debugging
-        print(f"Time: {timestamp}, CO2: {co2} ppm, Temperature: {temperature} C, Humidity: {humidity} %")
+        print(
+            f"Time: {timestamp}, CO2: {co2} ppm, Temperature: {temperature} C, Humidity: {humidity} %")
     else:
         print("Invalid data format")
 
